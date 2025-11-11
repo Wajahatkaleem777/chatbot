@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: chatbot-backend:latest
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017/chatbot}
+      # other env vars your app needs (JWT_SECRET, PORT, etc.)
+    ports:
+      - "3000:3000"        # map host port to container - adjust as needed
+    depends_on:
+      - mongo
+    networks:
+      - chatbot_net
+
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=chatbot
+    networks:
+      - chatbot_net
+
+volumes:
+  mongo-data:
+
+networks:
+  chatbot_net:
+    external: true
+    name: chatbot_net
+
